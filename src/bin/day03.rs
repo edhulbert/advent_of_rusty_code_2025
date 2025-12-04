@@ -1,10 +1,7 @@
-use core::num;
 use std::{fs::File, io::BufRead, io::BufReader, time::Instant};
 
-
-
 fn main() {
-    // part_1();
+    part_1();
     part_2();
 }
 
@@ -58,8 +55,6 @@ fn part_2() {
             number += nums_array[batteries_to_switch_on_idx_array[NUM_OF_BATTERIES_TO_SWITCH_ON - 1 - i]] * TEN.pow(exponent);
         }
         total += number;
-        println!("{}", number);
-
     }
 
     println!("Took {:.2?}", now.elapsed());
@@ -98,8 +93,6 @@ fn part_1() {
         }
 
         let joltage = nums_array[highest_first_idx] * 10 + nums_array[highest_second_idx];
-        println!("row: {}, joltage:{}", line, joltage);
-
         total += joltage;
     }
 
