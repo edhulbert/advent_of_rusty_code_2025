@@ -35,8 +35,7 @@ fn part_2() {
         const NUM_OF_BATTERIES_TO_SWITCH_ON: usize = 12;
         let mut batteries_to_switch_on_idx_array: [usize; NUM_OF_BATTERIES_TO_SWITCH_ON] = [0; NUM_OF_BATTERIES_TO_SWITCH_ON];
 
-        let num_batteries_in_bank = nums_array.len();
-    
+        let num_batteries_in_bank = nums_array.len();    
         for i in 0..NUM_OF_BATTERIES_TO_SWITCH_ON {
             // find valid set of remaining batteries 
             let mut highest_idx: usize = if i != 0 { batteries_to_switch_on_idx_array[i-1] + 1 } else { 0 };
@@ -56,7 +55,7 @@ fn part_2() {
         for i in 0..batteries_to_switch_on_idx_array.len() {
             // take the len-1 - ith element, and add it x10^(i)
             let exponent: u32 = i.try_into().unwrap();
-            number += batteries_to_switch_on_idx_array[NUM_OF_BATTERIES_TO_SWITCH_ON - 1 - i] * TEN.pow(exponent);
+            number += nums_array[batteries_to_switch_on_idx_array[NUM_OF_BATTERIES_TO_SWITCH_ON - 1 - i]] * TEN.pow(exponent);
         }
         total += number;
         println!("{}", number);
