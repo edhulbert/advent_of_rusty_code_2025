@@ -59,7 +59,7 @@ fn challenge_1() {
                 .to_string()
                 .chars()
                 .map(|c| c.to_digit(10).unwrap() as usize)
-                .collect(); // 1 2 1 2
+                .collect(); 
         
             let size: usize = num_bytes.len(); 
             let mut is_ok = true;
