@@ -1,9 +1,62 @@
-use core::num;
-use std::{fs::File, io::BufRead, io::BufReader, time::Instant};
+use std::{fs::File, io::BufReader, time::Instant};
 use std::fs;
 
 fn main() {
     part_1();
+    part_2();
+}
+
+fn part_2() {
+    println!("Part 2!");
+    let now: Instant = Instant::now();
+    let mut total: usize = 0;
+
+    let bytes = fs::read("input/day04.txt").unwrap();  
+
+    let width = bytes.iter()
+        .position(|&b| b == b'\n')
+        .expect("No newline found");
+
+    let mut positions: Vec<bool> = vec!();
+
+    for &b in &bytes {
+        match b {
+            b'@' => positions.push(true),
+            b'.' => positions.push(false),
+            b'\n' => {},
+            _ => panic!("unexpected byte: {}", b)
+        }
+    }
+
+    let len = positions.len();
+    println!("{}, {}", width, len);
+
+    let mut any_to_remove: bool = true;
+
+    while any_to_remove {
+        let mut rolls_to_remove_indices: Vec<usize> = vec!();
+
+        for i in 0..len {
+            if is_removeable_roll(i, width, &positions) {
+                rolls_to_remove_indices.push(i);
+                total += 1;
+            }
+        }
+
+        for roll_to_remove in 0..rolls_to_remove_indices.len() {
+            positions[rolls_to_remove_indices[roll_to_remove]] = false;
+        }
+
+        if rolls_to_remove_indices.is_empty() {
+            any_to_remove = false;
+        }
+    }
+
+    println!("len: {}, width: {}", bytes.len(), width);
+    println!("Took {:.2?}", now.elapsed());
+    println!("total: {}", total);
+    
+
 }
 
 fn part_1() {
@@ -33,50 +86,7 @@ fn part_1() {
     
 
     for i in 0..len {
-        let mut num_rolls = 0;
-
-        if !positions[i] {
-            continue;
-        }
-
-        // top left
-        let top_left_index: usize = i - width - 1;
-        if i >= width && i % width != 0 && positions[i - width - 1] {
-            num_rolls += 1;
-        }
-        // top middle
-        if i >= width && positions[i - width] {
-            num_rolls += 1;
-        }
-        //top right
-        if i >= width && (i + 1) % width != 0 && positions[i - width + 1] {
-            num_rolls += 1;
-        }
-        // left middle 
-        if i % width != 0 && positions[i - 1] {
-            num_rolls += 1;
-        }
-        // right middle 
-        if (i + 1) % width != 0 && positions[i + 1] {
-            num_rolls += 1;
-        }
-        // bottom left
-        if (i + width) < len && i % width != 0 && positions[i + width - 1] {
-            num_rolls += 1;
-        }
-        // bottom middle 
-        if (i + width) < len && positions[i + width] {
-            num_rolls += 1;
-        }
-        // bottom right
-        if (i + width) < len && (i + 1) % width != 0 && positions[i + width + 1] {
-            num_rolls += 1;
-        }
-
-        if num_rolls < 4 {
-            let x = i % width;
-            let y = i / (len / width);
-            println!("found one for i = {}! x: {}, y: {}", i, x , y);
+        if is_removeable_roll(i, width, &positions) {
             total += 1;
         }
     }
@@ -86,6 +96,50 @@ fn part_1() {
     println!("total: {}", total);
 }
 
+fn is_removeable_roll(i: usize, width: usize, rolls: &Vec<bool>) -> bool {
+        let mut num_rolls = 0;
+        let len = rolls.len();
+
+        if !rolls[i] {
+            return false;
+        }
+
+        // top left
+        if i >= width && i % width != 0 && rolls[i - width - 1] {
+            num_rolls += 1;
+        }
+        // top middle
+        if i >= width && rolls[i - width] {
+            num_rolls += 1;
+        }
+        //top right
+        if i >= width && (i + 1) % width != 0 && rolls[i - width + 1] {
+            num_rolls += 1;
+        }
+        // left middle 
+        if i % width != 0 && rolls[i - 1] {
+            num_rolls += 1;
+        }
+        // right middle 
+        if (i + 1) % width != 0 && rolls[i + 1] {
+            num_rolls += 1;
+        }
+        // bottom left
+        if (i + width) < len && i % width != 0 && rolls[i + width - 1] {
+            num_rolls += 1;
+        }
+        // bottom middle 
+        if (i + width) < len && rolls[i + width] {
+            num_rolls += 1;
+        }
+        // bottom right
+        if (i + width) < len && (i + 1) % width != 0 && rolls[i + width + 1] {
+            num_rolls += 1;
+        }
+
+        num_rolls < 4
+
+}
 
 // a b c d e
 // f g h i j
@@ -127,8 +181,3 @@ fn part_1() {
 //     // if on top edge i.e. i < width then n/a
 // }
 
-
-fn parse() -> BufReader<File> {
-    let file = File::open("input/day04.txt").unwrap();
-    BufReader::new(file)
-}
