@@ -1,4 +1,4 @@
-use std::{fs::File, io::BufReader, time::Instant};
+use std::{time::Instant};
 use std::fs;
 
 fn main() {
