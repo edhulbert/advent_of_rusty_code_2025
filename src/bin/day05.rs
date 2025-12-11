@@ -16,7 +16,6 @@ fn task_2() {
 
     for line in buf_reader.lines() {
         let line_result = line.unwrap();
-        println!("{}", line_result);
         if line_result.is_empty() {
             break;
         } 
@@ -24,54 +23,59 @@ fn task_2() {
         let start: usize = line_result[0..dash_index].parse().unwrap();
         let end: usize = line_result[dash_index+1..].parse().unwrap();
 
-        // find first value in upper bounds that is higher than the upper bound
-        let next_highest_range = ranges
-            .iter()
-            .find(|range: &&Range| range.upper >= end);
+        let mut idx = match ranges.binary_search_by_key(&start, |range| range.start) {
+            Ok(i) => i,
+            Err(i) => i
+        };
 
-        
+        println!("found idx: {}", idx);
+
+        if idx > 0 && ranges[idx - 1].overlaps_or_adjacent(start, end) {
+            idx -= 1;
+        }
+        println!("changed idx: {}", idx);
+
+
+        let mut merged = Range{start: start, end: end};
+
+        while idx < ranges.len() && ranges[idx].overlaps_or_adjacent(merged.start, merged.end) {
+            merged = merged.merge(&ranges[idx]);
+            println!("changed merged {:?}", merged);
+            ranges.remove(idx);
+        }
+
+        ranges.insert(idx, merged);
+        println!("ranges: {:?}", ranges);
     }
 
-    // 3, 10, 16, 12
-    // 5, 14, 20, 18
+    let mut total = 0;
+    for range in &ranges {
+        total += range.end - range.start + 1;
+    }
 
-    // 3
-    // 5
-
-// 10, 14
-// find first set in upper bounds that is higher than upper bound
-// 
-
-    // 3, 10
-    // 5, 14
-
-    // 3, 10, 16
-    // 5, 14, 20
-    
-    // new set is (12, 20)
-    // find first set in "upper bounds" that is higher than the upper bound
-    // if that lower bound is lower that our new one, we need to merge
-
-    // do the same for upper boud
-
-    // 3, 10
-    // 5, 20
-
-    // 3, 5
-    // 3, 5, 10, 14
-    // 3, 5, 10, 14, 16, 20
-    // 3, 5, 10, 20
-
-    let total = fresh_ids.len();
 
     println!("Took {:.2?}", now.elapsed());
     println!("total: {}", total);
 
 }
 
+#[derive(Debug)]
 struct Range {
-    lower: usize,
-    upper: usize
+    start: usize,
+    end: usize
+}
+
+impl Range {
+    fn overlaps_or_adjacent(&self, start: usize, end: usize) -> bool {
+        self.start <= end + 1 || self.end >= start - 1
+    }
+
+    fn merge(&self, other: &Range) -> Range {
+        Range {
+            start: self.start.min(other.start),
+            end: self.end.min(other.end)
+        }
+    }
 }
 
 fn task_1() {
